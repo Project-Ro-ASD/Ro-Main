@@ -1,0 +1,24 @@
+name: Auto Update Submodules
+on:
+  repository_dispatch:
+    types: [submodule_update]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+          token: ${{ secrets.RO_PAT_TOKEN }}
+
+      - name: Update Submodules
+        run: |
+          git submodule update --remote --recursive
+          git config --global user.name "Ro-ASD-Bot"
+          git config --global user.email "bot@ro-asd.com"
+          git add .
+          # Eğer değişiklik yoksa hata vermemesi için || true kullanıyoruz
+          git commit -m "Sistem Güncellemesi: Alt repolardan yeni commit çekildi" || exit 0
+          git push origin main
